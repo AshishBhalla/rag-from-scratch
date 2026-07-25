@@ -1,0 +1,5 @@
+Node.js is a JavaScript runtime.
+Express is a Node.js framework.
+Amazon S3 stores files.
+
+AWS Lambda is serverless.
