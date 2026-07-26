@@ -1,5 +1,3 @@
-Node.js is a JavaScript runtime.
-Express is a Node.js framework.
-Amazon S3 stores files.
-
-AWS Lambda is serverless.
+Project Falcon uses DynamoDB for order storage.
+Its deployment region is ap-south-1.
+Falcon processes approximately 18,000 orders per day.
