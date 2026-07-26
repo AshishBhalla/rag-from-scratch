@@ -9,6 +9,6 @@ export type DataStore = {
 }
 
 export type FinalOutput = {
-  bestScore : number,
-  bestDocument: string
+  score : number,
+  document: string
 }

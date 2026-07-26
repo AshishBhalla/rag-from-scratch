@@ -5,6 +5,8 @@ import readData from "./utils/readData.js";
 import { DataStore, FinalOutput } from "./interface/interface.js";
 import createEmbeddings from "./utils/embeddings.js";
 import retrieve from "./retrieval/retrievalEngine.js";
+import generateContent from "./generation/generator.js";
+import { TOP_K } from "./constants/constants.js";
 
 const rl = readline.createInterface({ input, output });
 
@@ -21,8 +23,14 @@ async function main(): Promise<void> {
   while (true) {
     const userMessage: string = await rl.question(chalk.greenBright("You: "));
     const userMessageEmbedding: DataStore = await createEmbeddings(userMessage);
-    const document: FinalOutput = retrieve(userMessageEmbedding, dataStore);
-    console.log(`Bot: ${document.bestDocument}`);
+    const documents: FinalOutput[] = retrieve(
+      userMessageEmbedding,
+      dataStore,
+      TOP_K,
+    );
+    const context = documents.map((d) => d.document).join("\n");
+    const llmResponse = await generateContent(context, userMessage);
+    console.log(`Bot: ${JSON.stringify(llmResponse.response)}`);
   }
 }
 
