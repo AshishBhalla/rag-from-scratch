@@ -1,3 +1,15 @@
 Project Falcon uses DynamoDB for order storage.
 Its deployment region is ap-south-1.
 Falcon processes approximately 18,000 orders per day.
+
+Project Eagle uses PostgreSQL for customer records.
+Project Eagle is deployed in eu-west-1.
+Project Eagle is led by Sarah Chen.
+
+Project Phoenix uses MongoDB for analytics.
+Project Phoenix runs in us-east-1.
+Project Phoenix processes 40,000 events per day.
+
+Project Orion uses DynamoDB for session storage.
+Project Orion is deployed in ap-southeast-2.
+Project Orion is led by Michael Roberts.
