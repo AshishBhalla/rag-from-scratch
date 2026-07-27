@@ -16,18 +16,31 @@ export type Filter = {
   project: string;
 };
 
-export type Embedding = {
-  embedding: number[];
-}
-
 export type BaseEmbed = Embedding & {
   text: string;
-};
-
-export type StoredDocument = BaseEmbed & {
-  metadata: Metadata;
 };
 
 export type Query = BaseEmbed & {
   filter: Filter;
 };
+
+export type Text = {
+  text: string;
+};
+
+export type Embedding = {
+  embedding: number[];
+};
+
+export type SourceDocument = Text & {
+  metadata: Metadata;
+};
+
+export type DocumentChunk = Text & {
+  metadata: Metadata;
+};
+
+export type EmbeddedChunk = Text &
+  Embedding & {
+    metadata: Metadata;
+  };

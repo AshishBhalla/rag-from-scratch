@@ -8,7 +8,7 @@ export default function filterBuilder(data: string): Filter {
   const dataArray: string[] = data.toLowerCase().split(" ");
   if (hasProjectkey) {
     const projectIndex: number = dataArray.indexOf("project");
-    return { project: dataArray[projectIndex + 1]! };
+    return { project: dataArray[projectIndex + 1]!.replace(/[^a-zA-Z0-9]/g, '') };
   }
   return { project };
 }
