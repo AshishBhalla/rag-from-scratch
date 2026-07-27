@@ -1,16 +1,15 @@
 import ollama from "ollama";
 import { EMBEDDING_MODEL } from "../constants/constants.js";
-import { DataStore } from "../interface/interface.js";
+import { Embedding } from "../interface/interface.js";
 
 export default async function createEmbeddings(
   input: string,
-): Promise<DataStore> {
+): Promise<Embedding> {
   const response = await ollama.embed({
     model: EMBEDDING_MODEL,
     input,
   });
   return {
-    text: input,
     embedding: response.embeddings[0] ?? [],
   };
 }

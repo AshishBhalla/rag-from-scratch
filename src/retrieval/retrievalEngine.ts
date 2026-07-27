@@ -1,5 +1,5 @@
 import cosineSimilarity from "./similarity.js";
-import { DataStore, FinalOutput } from "../interface/interface.js";
+import { StoredDocument, FinalOutput, Query } from "../interface/interface.js";
 
 // let bestScore: number = Infinity;
 // let score: number = -Infinity;
@@ -10,20 +10,27 @@ function getTopK(arr: FinalOutput[], k: number): FinalOutput[] {
 }
 
 export default function retrieve(
-  userMessageEmbedding: DataStore,
-  dataStore: DataStore[],
+  userMessageEmbedding: Query,
+  storedDocuments: StoredDocument[],
   k: number,
 ): FinalOutput[] {
   const documents: FinalOutput[] = [];
-  for (const item of dataStore) {
+  for (const item of storedDocuments) {
     //   let score = similarity(item.embedding, userMessageEmbedding.embedding);
     //   if (score < bestScore) {
     //     bestScore = score;
     //     bestDocument = item.text;
     //   }
-    const score:number = cosineSimilarity(item.embedding, userMessageEmbedding.embedding);
-    const document:string = item.text;
-    documents.push({ score, document });
+    if (item.metadata.project === userMessageEmbedding.filter.project) {
+      const score: number = cosineSimilarity(
+        item.embedding,
+        userMessageEmbedding.embedding,
+      );
+      const document: string = item.text;
+      console.log("Retrieved");
+      console.log(`${score} | ${document}`);
+      documents.push({ score, document });
+    }
   }
   return getTopK(documents, k);
 }
