@@ -7,9 +7,10 @@ import {
   Query,
   SourceDocument,
   DocumentChunk,
-  EmbeddedChunk
+  EmbeddedChunk,
+  RetrievalResult,
 } from "./interface/interface.js";
-import {createEmbeddings} from "./utils/embeddings.js";
+import { createEmbeddings } from "./utils/embeddings.js";
 import retrieve from "./retrieval/retrievalEngine.js";
 import generateContent from "./generation/generator.js";
 import filterBuilder from "./utils/filter.js";
@@ -21,7 +22,10 @@ const rl = readline.createInterface({ input, output });
 async function main(): Promise<void> {
   const embeddedChunks: EmbeddedChunk[] = [];
   const inputReference: SourceDocument[] = await readData();
-  const overlappingChunks: DocumentChunk[] = createOverlappingChunks(inputReference)
+  console.log("inputReference", inputReference);
+  const overlappingChunks: DocumentChunk[] =
+    createOverlappingChunks(inputReference);
+  console.log("overlappingChunks", overlappingChunks);
   for (const record of overlappingChunks) {
     const { embedding } = await createEmbeddings(record.text);
     // const metadata = metadataEnrichment(record.metadata.project);
@@ -35,19 +39,20 @@ async function main(): Promise<void> {
   while (true) {
     const userMessage: string = await rl.question(chalk.greenBright("You: "));
     const { embedding } = await createEmbeddings(userMessage);
+    console.log("userMessage", userMessage);
     const filter = filterBuilder(userMessage);
     const query: Query = {
       text: userMessage,
       embedding,
       filter,
     };
-    const documents: FinalOutput[] = retrieve(
+    const retrievedResults: RetrievalResult[] = retrieve(
       query,
       embeddedChunks,
       TOP_K,
     );
-    console.log("top-k", documents);
-    const context = documents.map((d) => d.document).join("\n");
+    console.log("top-k", JSON.stringify(retrievedResults, null, 2));
+    const context = retrievedResults.map((rr) => rr.chunk.text).join("\n");
     const llmResponse = await generateContent(context, userMessage);
     console.log(`Bot: ${JSON.stringify(llmResponse.response)}`);
   }

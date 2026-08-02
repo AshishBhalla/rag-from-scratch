@@ -44,3 +44,8 @@ export type EmbeddedChunk = Text &
   Embedding & {
     metadata: Metadata;
   };
+
+export type RetrievalResult = {
+  similarity: number;
+  chunk: EmbeddedChunk;
+};
