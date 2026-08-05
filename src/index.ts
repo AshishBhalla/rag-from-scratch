@@ -15,6 +15,8 @@ import retrieve from "./retrieval/retrievalEngine.js";
 import generateContent from "./generation/generator.js";
 import filterBuilder from "./utils/filter.js";
 import createOverlappingChunks from "./utils/overlapChunks.js";
+import { IdentityReranker } from "./reranker/identityRanker.js";
+import { KeywordRanker } from "./reranker/keywordRanker.js";
 import { TOP_K } from "./constants/constants.js";
 
 const rl = readline.createInterface({ input, output });
@@ -51,7 +53,12 @@ async function main(): Promise<void> {
       embeddedChunks,
       TOP_K,
     );
-    console.log("top-k", JSON.stringify(retrievedResults, null, 2));
+    console.log("top-k", retrievedResults);
+    const reRankedCandidates: RetrievalResult[] = await KeywordRanker.rerank({
+      question: userMessage,
+      candidates: retrievedResults,
+    });
+    console.log("top-k-reRankedCandidates", reRankedCandidates);
     const context = retrievedResults.map((rr) => rr.chunk.text).join("\n");
     const llmResponse = await generateContent(context, userMessage);
     console.log(`Bot: ${JSON.stringify(llmResponse.response)}`);

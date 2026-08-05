@@ -48,4 +48,20 @@ export type EmbeddedChunk = Text &
 export type RetrievalResult = {
   similarity: number;
   chunk: EmbeddedChunk;
+  rerankScore?: number;
+};
+
+export type RerankRequest = {
+  question: string;
+  candidates: RetrievalResult[];
+};
+
+export type EvaluationRequest = {
+  question: string;
+  candidates: RetrievalResult[];
+};
+
+export type ContextBuildRequest = {
+  question: string;
+  validatedEvidence: RetrievalResult[];
 };
