@@ -61,6 +61,18 @@ export type EvaluationRequest = {
   candidates: RetrievalResult[];
 };
 
+export type ConfidenceLevel = "HIGH" | "MEDIUM" | "LOW";
+
+export type EvaluatedEvidence = {
+  candidate: RetrievalResult;
+  confidence: ConfidenceLevel;
+};
+
+export type EvaluationResult = {
+  evidence: EvaluatedEvidence[];
+  canAnswer: boolean;
+};
+
 export type ContextBuildRequest = {
   question: string;
   validatedEvidence: RetrievalResult[];
