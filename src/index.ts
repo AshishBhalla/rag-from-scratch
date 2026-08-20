@@ -10,6 +10,7 @@ import {
   EmbeddedChunk,
   RetrievalResult,
   EvaluationResult,
+  ContextBuildResult,
 } from "./interface/interface.js";
 import { createEmbeddings } from "./utils/embeddings.js";
 import retrieve from "./retrieval/retrievalEngine.js";
@@ -19,6 +20,7 @@ import createOverlappingChunks from "./utils/overlapChunks.js";
 import { IdentityReranker } from "./reranker/identityRanker.js";
 import { KeywordRanker } from "./reranker/keywordRanker.js";
 import { HeuristicEvidenceEvaluator } from "./evidence-evaluator/heuristic-evidence-evaluator.js";
+import { ContextBuilderFunction } from "./context-builder/context-builder.js";
 import { TOP_K } from "./constants/constants.js";
 
 const rl = readline.createInterface({ input, output });
@@ -66,11 +68,18 @@ async function main(): Promise<void> {
         question: userMessage,
         candidates: reRankedCandidates,
       });
-      console.log("evaluatedEvidence", evaluatedEvidence);
-    const context = evaluatedEvidence.evidence
-      .map((ee) => ee.candidate.chunk.text)
-      .join("\n");
-    const llmResponse = await generateContent(context, userMessage);
+    console.log("evaluatedEvidence", evaluatedEvidence);
+    const builtContext: ContextBuildResult = await ContextBuilderFunction.build(
+      {
+        question: userMessage,
+        evaluatedEvidence: evaluatedEvidence.evidence,
+      },
+    );
+    console.log("context", builtContext);
+    const llmResponse = await generateContent(
+      builtContext.context,
+      userMessage,
+    );
     console.log(`Bot: ${JSON.stringify(llmResponse.response)}`);
   }
 }
