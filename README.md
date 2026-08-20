@@ -26,3 +26,25 @@ Evidence Evaluation
 Context Construction
     ↓
 Grounded LLM Generation
+
+```markdown
+## Project Status
+
+### Gen-1 — Retrieval Quality Pipeline ✅
+
+The first complete retrieval-quality pipeline is implemented.
+
+- Semantic retrieval using vector embeddings
+- Cosine similarity
+- Top-K candidate retrieval
+- Pluggable reranker interface
+- Keyword-based reranking
+- Evidence evaluation
+- HIGH / MEDIUM / LOW evidence confidence
+- Answerability assessment
+- Context construction
+- Grounded LLM generation
+
+### Next
+
+Gen-2 will explore adaptive retrieval — allowing the system to recognize when the retrieved evidence is insufficient and perform another retrieval iteration using feedback from the evaluation stage.
