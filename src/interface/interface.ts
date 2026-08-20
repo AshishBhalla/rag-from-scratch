@@ -75,5 +75,10 @@ export type EvaluationResult = {
 
 export type ContextBuildRequest = {
   question: string;
-  validatedEvidence: RetrievalResult[];
+  evaluatedEvidence: EvaluatedEvidence[];
+};
+
+export type ContextBuildResult = {
+  question: string;
+  context: string;
 };
