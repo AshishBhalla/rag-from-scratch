@@ -3,26 +3,38 @@ import { stdin as input, stdout as output } from "node:process";
 import chalk from "chalk";
 import readData from "./utils/readData.js";
 import {
-  StoredDocument,
   FinalOutput,
   Query,
+  SourceDocument,
+  DocumentChunk,
+  EmbeddedChunk,
+  RetrievalResult,
+  EvaluationResult,
 } from "./interface/interface.js";
-import createEmbeddings from "./utils/embeddings.js";
+import { createEmbeddings } from "./utils/embeddings.js";
 import retrieve from "./retrieval/retrievalEngine.js";
 import generateContent from "./generation/generator.js";
-import metadataEnrichment from "./utils/metedataEnrichment.js";
 import filterBuilder from "./utils/filter.js";
+import createOverlappingChunks from "./utils/overlapChunks.js";
+import { IdentityReranker } from "./reranker/identityRanker.js";
+import { KeywordRanker } from "./reranker/keywordRanker.js";
+import { HeuristicEvidenceEvaluator } from "./evidence-evaluator/heuristic-evidence-evaluator.js";
 import { TOP_K } from "./constants/constants.js";
 
 const rl = readline.createInterface({ input, output });
 
 async function main(): Promise<void> {
-  const storedDocuments: StoredDocument[] = [];
-  const inputReference = await readData();
-  for (const line of inputReference) {
-    const { embedding } = await createEmbeddings(line);
-    const metadata = metadataEnrichment(line);
-    storedDocuments.push({ text:line, embedding, metadata });
+  const embeddedChunks: EmbeddedChunk[] = [];
+  const inputReference: SourceDocument[] = await readData();
+  console.log("inputReference", inputReference);
+  const overlappingChunks: DocumentChunk[] =
+    createOverlappingChunks(inputReference);
+  console.log("overlappingChunks", overlappingChunks);
+  for (const record of overlappingChunks) {
+    const { embedding } = await createEmbeddings(record.text);
+    // const metadata = metadataEnrichment(record.metadata.project);
+    const metadata = record.metadata;
+    embeddedChunks.push({ text: record.text, embedding, metadata });
   }
 
   console.log(chalk.cyan("================================="));
@@ -31,16 +43,33 @@ async function main(): Promise<void> {
   while (true) {
     const userMessage: string = await rl.question(chalk.greenBright("You: "));
     const { embedding } = await createEmbeddings(userMessage);
+    console.log("userMessage", userMessage);
     const filter = filterBuilder(userMessage);
-    const userMessageEmbedding: Query = { text: userMessage, embedding, filter };
-    console.log("userMessageEmbedding", userMessageEmbedding);
-    const documents: FinalOutput[] = retrieve(
-      userMessageEmbedding,
-      storedDocuments,
+    const query: Query = {
+      text: userMessage,
+      embedding,
+      filter,
+    };
+    const retrievedResults: RetrievalResult[] = retrieve(
+      query,
+      embeddedChunks,
       TOP_K,
     );
-    console.log("top-k", documents);
-    const context = documents.map((d) => d.document).join("\n");
+    console.log("top-k", retrievedResults);
+    const reRankedCandidates: RetrievalResult[] = await KeywordRanker.rerank({
+      question: userMessage,
+      candidates: retrievedResults,
+    });
+    console.log("top-k-reRankedCandidates", reRankedCandidates);
+    const evaluatedEvidence: EvaluationResult =
+      await HeuristicEvidenceEvaluator.evaluate({
+        question: userMessage,
+        candidates: reRankedCandidates,
+      });
+      console.log("evaluatedEvidence", evaluatedEvidence);
+    const context = evaluatedEvidence.evidence
+      .map((ee) => ee.candidate.chunk.text)
+      .join("\n");
     const llmResponse = await generateContent(context, userMessage);
     console.log(`Bot: ${JSON.stringify(llmResponse.response)}`);
   }

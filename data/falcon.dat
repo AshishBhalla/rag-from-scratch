@@ -1,0 +1,3 @@
+Project Falcon uses DynamoDB for order storage.
+Project Falcon is deployed in the ap-south-1 region.
+Falcon processes approximately 18,000 orders per day.

@@ -2,18 +2,17 @@ import ollama from "ollama";
 import { EMBEDDING_MODEL } from "../constants/constants.js";
 import { Embedding } from "../interface/interface.js";
 
-export default async function createEmbeddings(
+export async function createEmbeddings(
   input: string,
 ): Promise<Embedding> {
   const response = await ollama.embed({
     model: EMBEDDING_MODEL,
-    input,
+    input
   });
   return {
     embedding: response.embeddings[0] ?? [],
   };
 }
-
 
 // calculating Manhattan distance
 // const similarity = (a: number[], b: number[]): number => {

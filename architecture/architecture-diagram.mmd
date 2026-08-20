@@ -1,0 +1,39 @@
+flowchart TB
+  subgraph Source
+    A[Data files<br>/data/*.dat]
+  end
+
+  subgraph Ingestion
+    B[readData()<br>src/utils/readData.ts]
+    C[createOverlappingChunks()<br>src/utils/overlapChunks.ts]
+    D[createEmbeddings()<br>src/utils/embeddings.ts]
+  end
+
+  subgraph Store
+    E[Embedded chunks with metadata<br>src/interface/interface.ts]
+  end
+
+  subgraph Query
+    F[User input<br>src/index.ts]
+    G[createEmbeddings(userMessage)<br>src/utils/embeddings.ts]
+    H[filterBuilder(userMessage)<br>src/utils/filter.ts]
+    I[retrieve()<br>src/retrieval/retrievalEngine.ts]
+  end
+
+  subgraph Generation
+    J[createPrompt(context, question)<br>src/utils/createPrompt.ts]
+    K[generateContent()<br>src/generation/generator.ts]
+  end
+
+  A --> B
+  B --> C
+  C --> D
+  D --> E
+  F --> G
+  F --> H
+  G --> I
+  H --> I
+  E --> I
+  I --> J
+  J --> K
+  K --> F
